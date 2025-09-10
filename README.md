@@ -243,18 +243,3 @@ Content-Type: application/json
 Este proyecto está licenciado bajo la **Licencia MIT**.
 
 ---
-
-## 📞 Soporte
-
-Para problemas adicionales o preguntas:
-
-1. Revisa la sección de **Solución de Problemas**
-2. Consulta la documentación de las tecnologías utilizadas
-3. Abre un issue en el repositorio del proyecto
-
-## 🎯 Casos de Uso Ideales
-
-- **Desarrollo Rápido de APIs**: Genera backends completos en minutos
-- **Prototipado**: Crea APIs funcionales para pruebas de concepto
-- **Entornos de Laboratorio**: Ideal para educación y experimentación
-- **Aplicaciones Empresariales**: Base sólida para sistemas de producción
