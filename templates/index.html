@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administrador y Generador de Módulos NestJS</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1e1e2f;
+            margin: 0;
+            padding: 30px;
+            color: #e0e0e0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00e676;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .section {
+            background-color: #2c2c3c;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        label {
+            font-weight: 500;
+            margin-top: 15px;
+            color: #b2ff59;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #1e1e2f;
+            color: #e0e0e0;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button, input[type="submit"] {
+            background-color: #00e676;
+            color: #1e1e2f;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #00c853;
+        }
+
+        .connect-status {
+            margin-top: 10px;
+            font-weight: bold;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: {% if is_connected %}#00c853{% else %}#d32f2f{% endif %};
+            color: white;
+        }
+
+        .result, .error {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .result {
+            background-color: #263238;
+            color: #00e676;
+        }
+
+        .error {
+            background-color: #b71c1c;
+            color: #ffebee;
+        }
+
+        .status {
+            background-color: #212121;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #eeeeee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Administrador de Bases de Datos y Generador de Módulos NestJS</h1>
+    <form method="POST">
+        <div class="section">
+            <h2>Conexión a la Base de Datos</h2>
+            <label>Tipo de Base de Datos:</label>
+            <select name="db_type" onchange="this.form.submit()">
+                <option value="postgres" {% if db_type == 'postgres' %}selected{% endif %}>PostgreSQL</option>
+                <option value="mysql" {% if db_type == 'mysql' %}selected{% endif %}>MySQL</option>
+            </select>
+
+            <label>Tipo de Conexión:</label>
+            <select name="connection_type" onchange="this.form.submit()">
+                <option value="manual" {% if connection_type == 'manual' %}selected{% endif %}>Manual</option>
+                <option value="docker" {% if connection_type == 'docker' %}selected{% endif %}>Docker ({{ 'db_server11' if db_type == 'postgres' else 'db_server12' }})</option>
+            </select>
+
+            {% if connection_type == 'manual' %}
+                <label>Host:</label>
+                <input type="text" name="host" value="{{ host }}" placeholder="Ej: localhost">
+                <label>Puerto:</label>
+                <input type="text" name="port" value="{{ port }}" placeholder="Ej: {{ '5432' if db_type == 'postgres' else '3306' }}">
+                <label>Usuario:</label>
+                <input type="text" name="username" value="{{ username }}" placeholder="Ej: root">
+                <label>Contraseña:</label>
+                <input type="password" name="password" value="{{ password }}" placeholder="Contraseña">
+            {% endif %}
+
+            <input type="submit" name="action" value="connect" class="connect-button">
+            <p class="connect-status">Estado de conexión: {% if is_connected %}✅ Conectado{% else %}❌ No conectado{% endif %}</p>
+
+            <label>Seleccionar Base de Datos (equivale a {% if db_type == 'postgres' %}\c{% else %}USE{% endif %}):</label>
+            <select name="selected_db" {% if not is_connected %}disabled{% endif %} onchange="this.form.submit()">
+                <option value="">-- Seleccionar --</option>
+                {% for db in databases %}
+                    <option value="{{ db }}" {% if selected_db == db %}selected{% endif %}>{{ db }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="section">
+            <h2>Ejecutar Consulta SQL</h2>
+            <label>Consulta SQL:</label>
+            <textarea name="sql_query">{{ sql_query }}</textarea>
+            <label>Resultado de la Consulta:</label>
+            <textarea readonly>{% if result %}{{ result | tojson(indent=2) }}{% endif %}</textarea>
+            <input type="submit" name="action" value="query" {% if not is_connected or not selected_db %}disabled{% endif %}>
+        </div>
+
+        <div class="section">
+            <h2>Generar Proyecto NestJS</h2>
+            <label>Nombre del Proyecto NestJS:</label>
+            <input type="text" name="project_name" value="{{ project_name }}" placeholder="Ej: my-nest-project">
+            <label>Ruta Base para el Proyecto NestJS:</label>
+            <input type="text" name="nest_src" value="{{ nest_src }}" placeholder="Ej: C:/path/to/NestArchivosGen">
+            <input type="submit" name="action" value="generate" onclick="return confirm('¿Crear proyecto NestJS y generar módulos?');" {% if not is_connected or not selected_db %}disabled{% endif %}>
+        </div>
+    </form>
+
+    <div class="section">
+        <h2>Estado:</h2>
+        <pre class="status">{{ status }}</pre>
+    </div>
+
+    {% if error %}
+        <h2 class="error">Error:</h2>
+        <pre class="error">{{ error }}</pre>
+    {% endif %}
+</body> 
+</html>

@@ -1,0 +1,7 @@
+flask
+sqlalchemy
+mysql-connector-python
+psycopg2-binary
+flask-session
+pymysql
+bcrypt
