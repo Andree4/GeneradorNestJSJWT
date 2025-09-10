@@ -230,16 +230,6 @@ Content-Type: application/json
 
 - Ejecuta `npm install` en el proyecto NestJS generado si faltan módulos
 
-## 🤝 Contribuciones
-
-¡Las contribuciones son bienvenidas! Por favor:
-
-- Envía pull requests para mejoras
-- Abre issues para reportar bugs o solicitar nuevas características
-- Sigue las mejores prácticas de desarrollo
-
-## 📄 Licencia
-
 Este proyecto está licenciado bajo la **Licencia MIT**.
 
 ---
